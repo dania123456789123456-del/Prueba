@@ -9,16 +9,15 @@ jobs:
         with:
           java-version: '17'
           distribution: 'temurin'
-      - name: Find and fix gradlew
-        run: find . -name "gradlew" -exec chmod +x {} \;
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
       - name: Create .env file
-        run: find . -name ".env.example" -execdir cp .env.example .env \; || echo "GEMINI_API_KEY=placeholder" > .env
+        run: echo "GEMINI_API_KEY=placeholder" > .env
+      - name: Generate gradlew
+        run: gradle wrapper
       - name: Build APK
-        run: |
-          GRADLEW=$(find . -name "gradlew" | head -1)
-          cd $(dirname $GRADLEW)
-          ./gradlew assembleDebug
+        run: ./gradlew assembleDebug
       - uses: actions/upload-artifact@v4
         with:
           name: app-debug
-          path: "**/app/build/outputs/apk/debug/app-debug.apk"
+          path: app/build/outputs/apk/debug/app-debug.apk
