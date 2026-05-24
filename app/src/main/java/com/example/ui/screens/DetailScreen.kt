@@ -213,7 +213,7 @@ fun DetailScreen(
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(top = 220.dp)
+                    .padding(top = if (isTablet) 220.dp else 160.dp)
                     .padding(horizontal = isTablet.let { if (it) 36.dp else 16.dp })
             ) {
                 val title = movieItem?.title ?: seriesItem?.title ?: ""
