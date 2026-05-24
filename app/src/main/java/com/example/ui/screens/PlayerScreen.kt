@@ -55,16 +55,28 @@ fun PlayerScreen(
 
     // Lock screen to Landscape
     DisposableEffect(Unit) {
-        val originalOrientation = activity?.requestedOrientation ?: ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
-        activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE
-        // Keep screen on
-        activity?.window?.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+    val originalOrientation = activity?.requestedOrientation ?: ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
+    activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE
+    activity?.window?.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
 
-        onDispose {
-            activity?.requestedOrientation = originalOrientation
-            activity?.window?.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
-        }
+    // Ocultar barra de notificaciones (modo inmersivo)
+    val window = activity?.window
+    val decorView = window?.decorView
+    decorView?.systemUiVisibility = (
+        android.view.View.SYSTEM_UI_FLAG_FULLSCREEN or
+        android.view.View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or
+        android.view.View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY or
+        android.view.View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN or
+        android.view.View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+    )
+
+    onDispose {
+        activity?.requestedOrientation = originalOrientation
+        activity?.window?.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+        // Restaurar barra al salir
+        decorView?.systemUiVisibility = android.view.View.SYSTEM_UI_FLAG_VISIBLE
     }
+}
 
     // Media states
     var currentUrl by remember { mutableStateOf(videoUrl) }
