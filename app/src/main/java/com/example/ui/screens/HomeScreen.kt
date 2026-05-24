@@ -94,7 +94,7 @@ fun HomeScreen(
                 onNavigateToDetail = onNavigateToDetail,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .heightIn(min = 220.dp, max = 340.dp)
+                    .heightIn(min = 180.dp, max = 260.dp)
             )
         }
 
