@@ -13,6 +13,8 @@ jobs:
         uses: gradle/actions/setup-gradle@v3
       - name: Create .env file
         run: echo "GEMINI_API_KEY=placeholder" > .env
+      - name: Decode keystore
+        run: base64 -d debug.keystore.base64 > debug.keystore
       - name: Generate gradlew
         run: gradle wrapper
       - name: Build APK
