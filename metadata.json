@@ -1,0 +1,6 @@
+{
+  "name": "CineStream",
+  "description": "Native Android video streaming application built with Jetpack Compose, LibVLC and Google Cast SDK.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
