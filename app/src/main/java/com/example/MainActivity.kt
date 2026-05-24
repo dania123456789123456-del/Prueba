@@ -34,18 +34,23 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
+        // Initialize Cast context before UI
+        try {
+            com.google.android.gms.cast.framework.CastContext.getSharedInstance(this)
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+
         setContent {
             MyApplicationTheme {
                 val viewModel: MainViewModel = viewModel()
                 var currentScreen by remember { mutableStateOf<ScreenState>(ScreenState.Splash) }
-                var selectedDetailItem by remember { mutableStateOf<Pair<String, String>?>(null) } // id to type
+                var selectedDetailItem by remember { mutableStateOf<Pair<String, String>?>(null) }
 
                 val isLoggedIn by viewModel.isLoggedIn.collectAsState()
 
-                // Automatic login session bypass on startup
                 LaunchedEffect(isLoggedIn) {
                     if (currentScreen == ScreenState.Splash) {
-                        // Wait for Splash screen delay to finish before redirecting
                         return@LaunchedEffect
                     }
                     if (isLoggedIn) {
@@ -81,7 +86,6 @@ class MainActivity : ComponentActivity() {
                                 }
                             )
 
-                            // Detail screen overlay over Main Shell
                             selectedDetailItem?.let { pair ->
                                 Box(modifier = Modifier.fillMaxSize()) {
                                     DetailScreen(
@@ -94,10 +98,9 @@ class MainActivity : ComponentActivity() {
                                         },
                                         onPlayMovie = { movie ->
                                             val url = movie.qualities?.firstOrNull()?.url ?: movie.url ?: ""
-                                            val title = movie.title
                                             currentScreen = ScreenState.Player(
                                                 videoUrl = url,
-                                                title = title,
+                                                title = movie.title,
                                                 saveKey = "movie_${movie.id}",
                                                 qualities = movie.qualities ?: emptyList(),
                                                 subtitles = movie.subtitles ?: emptyList()
