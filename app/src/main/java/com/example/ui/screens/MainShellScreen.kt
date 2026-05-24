@@ -320,22 +320,33 @@ fun ShellTopBar(
             modifier = Modifier.weight(1f)
         )
 
-        // Native Google Cast button (safe init)
-AndroidView(
-    factory = { context ->
-        MediaRouteButton(context).apply {
+        // Cast button - safe rendering
+        val castAvailable = remember {
             try {
-                CastButtonFactory.setUpMediaRouteButton(context, this)
+                com.google.android.gms.cast.framework.CastContext.getSharedInstance()
+                true
             } catch (e: Exception) {
-                // Cast not available, hide button
-                visibility = android.view.View.GONE
+                false
             }
         }
-    },
-    modifier = Modifier
-        .size(34.dp)
-        .padding(end = 8.dp)
-)
+        if (castAvailable) {
+            AndroidView(
+                factory = { context ->
+                    MediaRouteButton(context).apply {
+                        try {
+                            CastButtonFactory.setUpMediaRouteButton(context, this)
+                        } catch (e: Exception) {
+                            visibility = android.view.View.GONE
+                        }
+                    }
+                },
+                modifier = Modifier
+                    .size(34.dp)
+                    .padding(end = 8.dp)
+            )
+        } else {
+            Spacer(modifier = Modifier.width(8.dp))
+        }
 
         // Search pill field
         Row(
