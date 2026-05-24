@@ -24,7 +24,6 @@ fun VlcPlayerView(
 ) {
     val context = androidx.compose.ui.platform.LocalContext.current
 
-    // Keep reference to libvlc and mediaplayer
     var libVlc by remember { mutableStateOf<LibVLC?>(null) }
     var mediaPlayer by remember { mutableStateOf<MediaPlayer?>(null) }
 
@@ -46,15 +45,12 @@ fun VlcPlayerView(
             onVideoEvent(event)
         }
 
-        // Set speed
         player.rate = playbackSpeed
 
-        // Prepare media
         try {
             val media = Media(vlc, Uri.parse(videoUrl))
             media.setHWDecoderEnabled(true, false)
 
-            // External subtitles loading with proper IMedia.Slave construction
             if (!subtitleUrl.isNullOrEmpty()) {
                 val slave = IMedia.Slave(
                     IMedia.Slave.Type.Subtitle,
@@ -86,7 +82,6 @@ fun VlcPlayerView(
                     ViewGroup.LayoutParams.MATCH_PARENT,
                     ViewGroup.LayoutParams.MATCH_PARENT
                 )
-                // Add SurfaceView inside FrameLayout
                 val surfaceView = SurfaceView(ctx).apply {
                     layoutParams = FrameLayout.LayoutParams(
                         FrameLayout.LayoutParams.MATCH_PARENT,
@@ -95,23 +90,24 @@ fun VlcPlayerView(
                 }
                 addView(surfaceView)
 
-                // Wait until layout is ready to attach VLC views
                 post {
                     mediaPlayer?.let { player ->
-                        player.videoScale = scaleType
+                        player.videoScale = MediaPlayer.ScaleType.SURFACE_FILL
                         player.vlcVout.setVideoView(surfaceView)
                         player.vlcVout.attachViews()
-                        // Force surface layout recalculation
-                        val width = surfaceView.width
-                        val height = surfaceView.height
+                        val width = surfaceView.width.takeIf { it > 0 } ?: 1920
+                        val height = surfaceView.height.takeIf { it > 0 } ?: 1080
                         player.vlcVout.setWindowSize(width, height)
+                        post {
+                            player.videoScale = MediaPlayer.ScaleType.SURFACE_FILL
+                        }
                     }
                 }
             }
         },
         update = { frameLayout ->
             mediaPlayer?.let { player ->
-                player.videoScale = scaleType
+                player.videoScale = MediaPlayer.ScaleType.SURFACE_FILL
                 val sv = frameLayout.getChildAt(0) as? SurfaceView
                 sv?.let {
                     player.vlcVout.setWindowSize(it.width, it.height)
