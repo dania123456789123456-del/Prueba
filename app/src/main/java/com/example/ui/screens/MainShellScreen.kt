@@ -320,17 +320,22 @@ fun ShellTopBar(
             modifier = Modifier.weight(1f)
         )
 
-        // Native Google Cast button representation
-        AndroidView(
-            factory = { context ->
-                MediaRouteButton(context).apply {
-                    CastButtonFactory.setUpMediaRouteButton(context, this)
-                }
-            },
-            modifier = Modifier
-                .size(34.dp)
-                .padding(end = 8.dp)
-        )
+        // Native Google Cast button (safe init)
+AndroidView(
+    factory = { context ->
+        MediaRouteButton(context).apply {
+            try {
+                CastButtonFactory.setUpMediaRouteButton(context, this)
+            } catch (e: Exception) {
+                // Cast not available, hide button
+                visibility = android.view.View.GONE
+            }
+        }
+    },
+    modifier = Modifier
+        .size(34.dp)
+        .padding(end = 8.dp)
+)
 
         // Search pill field
         Row(
